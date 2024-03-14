@@ -41,7 +41,7 @@ module Jotdown
      def header(text)
        tag = text.slice!(/^[h|H]\d+/)
        option = text.gsub!(/^\./, "").slice!(/^\{.*\}/)
- 
+
        @result << "<#{tag} id=\"tag_#{@nxt_line}\">#{text.strip}</#{tag}>"
        @style << "\#tag_#{@nxt_line} #{option} \n"
      end
@@ -49,7 +49,7 @@ module Jotdown
      def paragraph(text)
        tag = text.slice!(/^[p|P]/)
        option = text.gsub!(/^\./, "").slice!(/^\{.*\}/)
-     
+
        @result << "<p id=\"tag_#{@nxt_line}\">#{inline_process(text.strip)}</p>"
        @style << "\#tag_#{@nxt_line} #{option} \n"
      end
@@ -122,12 +122,12 @@ module Jotdown
        Hash[*hash_arg]
      end
    end
-   
-   
-   
-   
+
+
+
+
   class Html
-     def self.render(language = "en", title = "index", style = " ", content = " ")
+     def self.render(content = " ",style = " ",language = "en", title = "index")
        return <<-HTML
        <!DOCTYPE html>
        <html lang="#{language}">
@@ -147,8 +147,14 @@ module Jotdown
        </html>
        HTML
      end
-   end 
-  .
+   end
+  
 end
 
-
+if $PROGRAM_NAME == __FILE__
+  ARGV.each do |input|
+    file_name = input.sub(".jd",".html")
+    r,s = Jotdown::Render.new(File.read(input)).start_tokenization
+    File.write("#{file_name}", Jotdown::Html.render(r,s))
+  end
+end
