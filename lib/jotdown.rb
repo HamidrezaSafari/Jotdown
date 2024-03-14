@@ -4,26 +4,32 @@ require_relative "jotdown/version"
 
 module Jotdown
   class Error < StandardError; end
-  class Render
+  class Document
      attr_accessor :next_p, :tokens
 
-     def initialize(source)
+     def initialize(file)
        @tokens = []
-       @source = source.split("\n")
+       @source = File.read(file).split("\n")
+       @file_name = file.sub(".jd",".html")
        @result =[]
        @style  =[]
        @nxt_line = 0
      end
 
-     def start_tokenization
+     def write_file
+       documnt,style = render
+       File.write("#{@file_name}", to_html(documnt,style))
+     end
+
+     private
+     
+     def render
        while @nxt_line <= @source.length
          tokenize(@source[@nxt_line])
          @nxt_line += 1
        end
        [@result.join(" "),@style.join(",")]
      end
-
-     private
 
      def tokenize(text)
        case text
@@ -105,14 +111,7 @@ module Jotdown
        text.gsub!(/\@([^\@]+)\@/, '<code>\1</code>')
        text.gsub!(/\!\[(.*)\]\((.*)\)/, '<p><img src="\2"/>\1</p>')
        text.gsub!(/\[(.*)\]\((.*)\)/, '<a href="\2">\1</a>')
-       # math_tmp =text.slice!(/\$\$(.*)\$\$}/)
-       # text.gsub!(/\$\$(.*)\$\$/, inline_math(math_tmp))
        text
-     end
-
-     def inline_math(exp)
-       formula = Plurimath::Math.parse(exp, :latex)
-       formula.to_mathml
      end
 
      def convert_to_hash(str)
@@ -121,13 +120,8 @@ module Jotdown
        hash_arg = str.gsub(/[^'"\w\d]/, " ").split.map { |x| x.gsub(/['"]/, "") }
        Hash[*hash_arg]
      end
-   end
-
-
-
-
-  class Html
-     def self.render(content = " ",style = " ",language = "en", title = "index")
+     
+     def to_html(content = " ",style = " ",language = "en", title = "index")
        return <<-HTML
        <!DOCTYPE html>
        <html lang="#{language}">
@@ -135,7 +129,6 @@ module Jotdown
          <meta charset="utf-8">
          <meta http-equiv="x-ua-compatible" content="ie=edge">
          <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
          <title>#{title}</title>
          <style>
          #{style}
@@ -146,15 +139,14 @@ module Jotdown
        </body>
        </html>
        HTML
+
      end
+     
    end
-  
 end
 
 if $PROGRAM_NAME == __FILE__
   ARGV.each do |input|
-    file_name = input.sub(".jd",".html")
-    r,s = Jotdown::Render.new(File.read(input)).start_tokenization
-    File.write("#{file_name}", Jotdown::Html.render(r,s))
+    Jotdown::Document.new(input).write_file
   end
 end
