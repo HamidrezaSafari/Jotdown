@@ -17,21 +17,21 @@ module Jotdown
      end
 
      def write_file
-       documnt,style = render
-       File.write("#{@file_name}", to_html(documnt,style))
+       documnt,style = process
+       File.write("#{@file_name}", render_to_html(documnt,style))
      end
 
      private
      
-     def render
+     def process
        while @nxt_line <= @source.length
-         tokenize(@source[@nxt_line])
+         parse_line(@source[@nxt_line])
          @nxt_line += 1
        end
        [@result.join(" "),@style.join(",")]
      end
 
-     def tokenize(text)
+     def parse_line(text)
        case text
        when /^[h|H]\d+\./
          header(text)
@@ -121,7 +121,7 @@ module Jotdown
        Hash[*hash_arg]
      end
      
-     def to_html(content = " ",style = " ",language = "en", title = "index")
+     def render_to_html(content = " ",style = " ",language = "en", title = "index")
        return <<-HTML
        <!DOCTYPE html>
        <html lang="#{language}">
