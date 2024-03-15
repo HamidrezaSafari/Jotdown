@@ -16,9 +16,9 @@ module Jotdown
        @nxt_line = 0
      end
 
-     def write_file
+     def render
        documnt,style = process
-       File.write("#{@file_name}", render_to_html(documnt,style))
+       render_to_html(documnt,style)
      end
 
      private
@@ -147,6 +147,6 @@ end
 
 if $PROGRAM_NAME == __FILE__
   ARGV.each do |input|
-    Jotdown::Document.new(input).write_file
+    File.write("#{input}.html",Jotdown::Document.new(input).render)
   end
 end

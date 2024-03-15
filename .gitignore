@@ -1,3 +1,14 @@
+.idea
+.ruby-gemset
+.ruby-version
+.DS_Store
+.rake_tasks
+.rspec
+
+Gemfile.lock
+
+/coverage
+
 /.bundle/
 /.yardoc
 /_yardoc/
@@ -6,5 +17,3 @@
 /pkg/
 /spec/reports/
 /tmp/
-
-.DS_Store
