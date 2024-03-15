@@ -7,10 +7,9 @@ module Jotdown
   class Document
      attr_accessor :next_p, :tokens
 
-     def initialize(file)
+     def initialize(source)
        @tokens = []
-       @source = File.read(file).split("\n")
-       @file_name = file.sub(".jd",".html")
+       @source = source.split("\n")
        @result =[]
        @style  =[]
        @nxt_line = 0
@@ -147,6 +146,7 @@ end
 
 if $PROGRAM_NAME == __FILE__
   ARGV.each do |input|
-    File.write("#{input}.html",Jotdown::Document.new(input).render)
+    file =  File.read(input)
+    File.write("#{input}.html",Jotdown::Document.new(file).render) 
   end
 end
